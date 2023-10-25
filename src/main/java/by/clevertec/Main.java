@@ -17,8 +17,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class Main {
@@ -43,12 +46,11 @@ public class Main {
 //        task17();
 //        task18();
 //        task19();
-        task20();
-        task21();
-        task22();
+//        task20();
+//        task21();
+//        task22();
     }
 
-    // TODO подумать еще...
     public static void task1() {
         List<Animal> animals = Util.getAnimals();
         animals.stream()
@@ -154,7 +156,6 @@ public class Main {
     }
 
     //пенсионный возраст Женщины = 58, мужчины = 63
-    //TODO подумать еще...
     public static void task13() {
         List<House> houses = Util.getHouses();
 
@@ -303,16 +304,41 @@ public class Main {
 
     public static void task20() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        List<Examination> examinations = Util.getExaminations();
+        Map.Entry<String, Double> maxFacultyAverage = students.stream()
+                .collect(Collectors.groupingBy(Student::getFaculty, Collectors.averagingDouble(
+                        student -> examinations.stream()
+                                .filter(exam -> exam.getStudentId() == student.getId())
+                                .mapToDouble(Examination::getExam1)
+                                .findFirst()
+                                .orElse(0)
+                )))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow();
+        System.out.printf("Максимальная средняя оценка на факультете \"%s\" и она равна: %f",
+                maxFacultyAverage.getKey(), maxFacultyAverage.getValue());
     }
 
     public static void task21() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        students.stream()
+                .collect(Collectors.groupingBy(Student::getGroup))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().stream().count()))
+                .forEach((key, value) -> System.out.printf("В группе \"%s\" числится %d студентов \n", key, value));
     }
 
     public static void task22() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        students.stream()
+                .collect(Collectors.groupingBy(Student::getFaculty))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> e.getValue().stream()
+                                .map(Student::getAge)
+                                .min(Comparator.comparingInt(a -> a)).orElseThrow()))
+                .forEach((key, value) ->
+                        System.out.printf("На факультете \"%s\" минимальный возраст среди студентов %d лет \n", key, value));
     }
 }
