@@ -9,19 +9,13 @@ import by.clevertec.model.Person;
 import by.clevertec.model.Student;
 import by.clevertec.util.Util;
 
-import java.security.KeyStore;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class Main {
@@ -125,7 +119,6 @@ public class Main {
                 .map(String::toCharArray)
                 .min(Comparator.comparingInt(c -> c.length))
                 .ifPresent(chars -> System.out.println(chars.length));
-        ;
     }
 
     public static void task10() {
