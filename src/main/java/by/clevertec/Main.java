@@ -15,6 +15,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,8 +50,11 @@ public class Main {
 
     public static void task1() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> hasAnimalByAgeRange = animal -> animal.getAge() >= 10 && animal.getAge() <= 20;
+
         animals.stream()
-                .filter(animal -> animal.getAge() >= 10 && animal.getAge() <= 20)
+                .filter(hasAnimalByAgeRange)
                 .sorted(Comparator.comparingInt(Animal::getAge))
                 .skip(14)
                 .limit(7)
@@ -57,8 +63,11 @@ public class Main {
 
     public static void task2() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> hasAnimalFromOrigin = animal -> animal.getOrigin().equals("Japanese");
+
         animals.stream()
-                .filter(animal -> animal.getOrigin().equals("Japanese"))
+                .filter(hasAnimalFromOrigin)
                 .map(animal -> {
                     if (animal.getGender().equals("Female")) {
                         return animal.getBread().toUpperCase();
@@ -70,8 +79,12 @@ public class Main {
 
     public static void task3() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> hasAnimalByAgeAndOriginStartsFrom =
+                animal -> animal.getAge() > 30 && animal.getOrigin().startsWith("A");
+
         animals.stream()
-                .filter(animal -> animal.getAge() > 30 && animal.getOrigin().startsWith("A"))
+                .filter(hasAnimalByAgeAndOriginStartsFrom)
                 .map(Animal::getOrigin)
                 .distinct()
                 .forEach(System.out::println);
@@ -79,27 +92,41 @@ public class Main {
 
     public static void task4() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> isFemale = animal -> animal.getGender().equals("Female");
+
         System.out.println(animals.stream()
-                .filter(animal -> animal.getGender().equals("Female"))
+                .filter(isFemale)
                 .count());
     }
 
     public static void task5() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> hasAnimalByAgeRangeAndOrigin = animal -> animal.getAge() >= 20
+                && animal.getAge() <= 30
+                && animal.getOrigin().equals("Hungarian");
+
         System.out.println(animals.stream()
-                .anyMatch(animal -> animal.getAge() >= 20
-                        && animal.getAge() <= 30
-                        && animal.getOrigin().equals("Hungarian")));
+                .anyMatch(hasAnimalByAgeRangeAndOrigin));
     }
 
     public static void task6() {
         List<Animal> animals = Util.getAnimals();
-        System.out.println(animals.stream().allMatch(animal -> animal.getGender().equals("Male") || animal.getGender().equals("Female")));
+
+        Predicate<Animal> hasMaleOrFemale = animal -> animal.getGender().equals("Male") || animal.getGender().equals("Female");
+
+        System.out.println(animals.stream().
+                allMatch(hasMaleOrFemale));
     }
 
     public static void task7() {
         List<Animal> animals = Util.getAnimals();
-        System.out.println(animals.stream().anyMatch(animal -> animal.getOrigin().equals("Oceania")));
+
+        Predicate<Animal> isOrigin = animal -> animal.getOrigin().equals("Oceania");
+
+        System.out.println(animals.stream()
+                .anyMatch(isOrigin));
     }
 
     public static void task8() {
@@ -130,8 +157,11 @@ public class Main {
 
     public static void task11() {
         List<Animal> animals = Util.getAnimals();
+
+        Predicate<Animal> hasOrigin = animal -> animal.getOrigin().equals("Indonesian");
+
         animals.stream()
-                .filter(animal -> animal.getOrigin().equals("Indonesian"))
+                .filter(hasOrigin)
                 .mapToDouble(Animal::getAge)
                 .average()
                 .ifPresent(System.out::println);
@@ -139,10 +169,13 @@ public class Main {
 
     public static void task12() {
         List<Person> persons = Util.getPersons();
+
+        Predicate<Person> hasGenderAndAgeRange = person -> person.getGender().equals("Male")
+                && person.getDateOfBirth().isAfter(LocalDate.of(1996, 10, 23))
+                && person.getDateOfBirth().isBefore(LocalDate.of(2005, 10, 23));
+
         persons.stream()
-                .filter(person -> person.getGender().equals("Male")
-                        && person.getDateOfBirth().isAfter(LocalDate.of(1996, 10, 23))
-                        && person.getDateOfBirth().isBefore(LocalDate.of(2005, 10, 23)))
+                .filter(hasGenderAndAgeRange)
                 .sorted(Comparator.comparingInt(Person::getRecruitmentGroup))
                 .limit(200)
                 .forEach(System.out::println);
@@ -152,6 +185,15 @@ public class Main {
     public static void task13() {
         List<House> houses = Util.getHouses();
 
+        Predicate<Person> hasSecondWaveRequirements = person -> {
+            LocalDate dateOfBirth = person.getDateOfBirth();
+            return dateOfBirth.isAfter(LocalDate.of(2005, 10, 22))
+                    || (dateOfBirth.isBefore(LocalDate.of(1965, 10, 23))
+                    && person.getGender().equals("Female"))
+                    || (dateOfBirth.isBefore(LocalDate.of(1960, 10, 23))
+                    && person.getGender().equals("Male"));
+        };
+
         List<Person> third = new ArrayList<>(); //для сбора третьей очереди эвакуации.
 
         List<Person> first = houses.stream()
@@ -160,28 +202,8 @@ public class Main {
                     if (house.getBuildingType().equals("Hospital")) {
                         return house.getPersonList().stream();
                     } else {
-                        Stream<Person> secondWave = house.getPersonList().stream().filter(person ->
-                                {
-                                    LocalDate dateOfBirth = person.getDateOfBirth();
-                                    return dateOfBirth.isAfter(LocalDate.of(2005, 10, 22))
-                                            || (dateOfBirth.isBefore(LocalDate.of(1965, 10, 23))
-                                            && person.getGender().equals("Female"))
-                                            || (dateOfBirth.isBefore(LocalDate.of(1960, 10, 23))
-                                            && person.getGender().equals("Male"));
-                                }
-                        );
-
-                        Stream<Person> thirdWave = house.getPersonList().stream().filter(person ->
-                                {
-                                    LocalDate dateOfBirth = person.getDateOfBirth();
-                                    return (person.getGender().equals("Female")
-                                            && (dateOfBirth.isAfter(LocalDate.of(1965, 10, 23))
-                                            && dateOfBirth.isBefore(LocalDate.of(2005, 10, 22))))
-                                            || (person.getGender().equals("Male")
-                                            && (dateOfBirth.isAfter(LocalDate.of(1960, 10, 23))
-                                            && dateOfBirth.isBefore(LocalDate.of(2005, 10, 22))));
-                                }
-                        );
+                        Stream<Person> secondWave = house.getPersonList().stream().filter(hasSecondWaveRequirements);
+                        Stream<Person> thirdWave = house.getPersonList().stream().filter(hasSecondWaveRequirements.negate());
                         thirdWave.collect(Collectors.toCollection(() -> third));
                         return secondWave;
                     }
@@ -196,28 +218,30 @@ public class Main {
     public static void task14() {
         List<Car> cars = Util.getCars();
 
+        Function<Car, Map<String, Car>> groupingCarsToMapOfCountryAndCars = car -> {
+            Map<String, Car> map = new HashMap<>();
+            if (car.getCarMake().equals("Jaguar") || car.getColor().equals("White")) {
+                map.put("Turkmenistan", car);
+            } else if (car.getMass() <= 1500
+                    && (car.getCarMake().equals("BMW") || car.getCarMake().equals("Lexus")
+                    || car.getCarMake().equals("Chrysler") || car.getCarMake().equals("Toyota"))) {
+                map.put("Uzbekistan", car);
+            } else if ((car.getColor().equals("Black") && car.getMass() > 4000)
+                    || car.getCarMake().equals("GMC") || car.getCarMake().equals("Dodge")) {
+                map.put("Kazakhstan", car);
+            } else if (car.getReleaseYear() < 1982 || car.getCarModel().equals("Civic") || car.getCarModel().equals("Cherokee")) {
+                map.put("Kyrgyzstan", car);
+            } else if ((!car.getColor().equals("Yellow") && !car.getColor().equals("Red")
+                    && !car.getColor().equals("Green") && !car.getColor().equals("Blue")) || car.getPrice() > 40000) {
+                map.put("Russia", car);
+            } else if (car.getVin().contains("59")) {
+                map.put("Mongolia", car);
+            }
+            return map;
+        };
+
         double sum = cars.stream()
-                .map(car -> {
-                    Map<String, Car> map = new HashMap<>();
-                    if (car.getCarMake().equals("Jaguar") || car.getColor().equals("White")) {
-                        map.put("Turkmenistan", car);
-                    } else if (car.getMass() <= 1500
-                            && (car.getCarMake().equals("BMW") || car.getCarMake().equals("Lexus")
-                            || car.getCarMake().equals("Chrysler") || car.getCarMake().equals("Toyota"))) {
-                        map.put("Uzbekistan", car);
-                    } else if ((car.getColor().equals("Black") && car.getMass() > 4000)
-                            || car.getCarMake().equals("GMC") || car.getCarMake().equals("Dodge")) {
-                        map.put("Kazakhstan", car);
-                    } else if (car.getReleaseYear() < 1982 || car.getCarModel().equals("Civic") || car.getCarModel().equals("Cherokee")) {
-                        map.put("Kyrgyzstan", car);
-                    } else if ((!car.getColor().equals("Yellow") && !car.getColor().equals("Red")
-                            && !car.getColor().equals("Green") && !car.getColor().equals("Blue")) || car.getPrice() > 40000) {
-                        map.put("Russia", car);
-                    } else if (car.getVin().contains("59")) {
-                        map.put("Mongolia", car);
-                    }
-                    return map;
-                })
+                .map(groupingCarsToMapOfCountryAndCars)
                 .flatMap(map -> map.entrySet().stream())
                 .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
                 .entrySet().stream()
@@ -239,25 +263,35 @@ public class Main {
         List<Flower> flowers = Util.getFlowers();
         String neededFlowersNameStartsWith = "CDEFGJKLMNOPQRS";
 
+        Predicate<Flower> hasFlowersNameStartWith =
+                flower -> neededFlowersNameStartsWith.contains(String.valueOf(flower.getCommonName().charAt(0)));
+        Predicate<Flower> hasFlowersShadePreferredAndVaseMaterial = flower -> flower.isShadePreferred()
+                && (flower.getFlowerVaseMaterial().contains("Glass")
+                || flower.getFlowerVaseMaterial().contains("Aluminum")
+                || flower.getFlowerVaseMaterial().contains("Steel"));
+        ToDoubleFunction<Flower> calculateFlowerService =
+                flower -> flower.getPrice() + flower.getWaterConsumptionPerDay() * 5 * 365 / 1000 * 1.39;
+
+
         double sum = flowers.stream()
                 .sorted(Comparator.comparing(
                                 Flower::getOrigin).reversed()
                         .thenComparing(Flower::getPrice).reversed()
                         .thenComparing(Flower::getWaterConsumptionPerDay).reversed())
-                .filter(flower -> neededFlowersNameStartsWith.contains(String.valueOf(flower.getCommonName().charAt(0))))
-                .filter(flower -> flower.isShadePreferred()
-                        && (flower.getFlowerVaseMaterial().contains("Glass")
-                        || flower.getFlowerVaseMaterial().contains("Aluminum")
-                        || flower.getFlowerVaseMaterial().contains("Steel")))
-                .mapToDouble(flower -> flower.getPrice() + flower.getWaterConsumptionPerDay() * 5 * 365 / 1000 * 1.39)
+                .filter(hasFlowersNameStartWith)
+                .filter(hasFlowersShadePreferredAndVaseMaterial)
+                .mapToDouble(calculateFlowerService)
                 .sum();
         System.out.println(sum + "$");
     }
 
     public static void task16() {
         List<Student> students = Util.getStudents();
+
+        Predicate<Student> hasStudentYounger = student -> student.getAge() < 18; //кстати таких нет :)
+
         students.stream()
-                .filter(student -> student.getAge() < 18)
+                .filter(hasStudentYounger)
                 .sorted(Comparator.comparing(Student::getSurname))
                 .forEach(student -> System.out.println("Student: " + student.getSurname() + ". His age: " + student.getAge()));
     }
