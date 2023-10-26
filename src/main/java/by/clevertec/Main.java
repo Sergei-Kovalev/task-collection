@@ -9,143 +9,363 @@ import by.clevertec.model.Person;
 import by.clevertec.model.Student;
 import by.clevertec.util.Util;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) {
-        task1();
-        task2();
-        task3();
-        task4();
-        task5();
-        task6();
-        task7();
-        task8();
-        task9();
-        task10();
-        task11();
-        task12();
-        task13();
+//        task1();
+//        task2();
+//        task3();
+//        task4();
+//        task5();
+//        task6();
+//        task7();
+//        task8();
+//        task9();
+//        task10();
+//        task11();
+//        task12();
+//        task13();
         task14();
-        task15();
-        task16();
-        task17();
-        task18();
-        task19();
-        task20();
-        task21();
-        task22();
+//        task15();
+//        task16();
+//        task17();
+//        task18();
+//        task19();
+//        task20();
+//        task21();
+//        task22();
     }
 
     public static void task1() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasAnimalByAgeRange = animal -> animal.getAge() >= 10 && animal.getAge() <= 20;
+
+        animals.stream()
+                .filter(hasAnimalByAgeRange)
+                .sorted(Comparator.comparingInt(Animal::getAge))
+                .skip(14)
+                .limit(7)
+                .forEach(System.out::println);
     }
 
     public static void task2() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasAnimalFromOrigin = animal -> animal.getOrigin().equals("Japanese");
+
+        animals.stream()
+                .filter(hasAnimalFromOrigin)
+                .map(animal -> {
+                    if (animal.getGender().equals("Female")) {
+                        return animal.getBread().toUpperCase();
+                    }
+                    return animal.getBread();
+                })
+                .forEach(System.out::println);
     }
 
     public static void task3() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasAnimalByAgeAndOriginStartsFrom =
+                animal -> animal.getAge() > 30 && animal.getOrigin().startsWith("A");
+
+        animals.stream()
+                .filter(hasAnimalByAgeAndOriginStartsFrom)
+                .map(Animal::getOrigin)
+                .distinct()
+                .forEach(System.out::println);
     }
 
     public static void task4() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> isFemale = animal -> animal.getGender().equals("Female");
+
+        System.out.println(animals.stream()
+                .filter(isFemale)
+                .count());
     }
 
     public static void task5() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasAnimalByAgeRangeAndOrigin = animal -> animal.getAge() >= 20
+                && animal.getAge() <= 30
+                && animal.getOrigin().equals("Hungarian");
+
+        System.out.println(animals.stream()
+                .anyMatch(hasAnimalByAgeRangeAndOrigin));
     }
 
     public static void task6() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasMaleOrFemale = animal -> animal.getGender().equals("Male") || animal.getGender().equals("Female");
+
+        System.out.println(animals.stream().
+                allMatch(hasMaleOrFemale));
     }
 
     public static void task7() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> isOrigin = animal -> animal.getOrigin().equals("Oceania");
+
+        System.out.println(animals.stream()
+                .anyMatch(isOrigin));
     }
 
     public static void task8() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+        animals.stream()
+                .sorted(Comparator.comparing(Animal::getBread))
+                .limit(100)
+                .max(Comparator.comparingInt(Animal::getAge))
+                .ifPresent(animal -> System.out.println(animal.getAge()));
+
     }
 
     public static void task9() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+        animals.stream()
+                .map(Animal::getBread)
+                .map(String::toCharArray)
+                .min(Comparator.comparingInt(c -> c.length))
+                .ifPresent(chars -> System.out.println(chars.length));
     }
 
     public static void task10() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+        System.out.println(animals.stream()
+                .mapToInt(Animal::getAge)
+                .sum());
     }
 
     public static void task11() {
         List<Animal> animals = Util.getAnimals();
-//        animals.stream() Продолжить ...
+
+        Predicate<Animal> hasOrigin = animal -> animal.getOrigin().equals("Indonesian");
+
+        animals.stream()
+                .filter(hasOrigin)
+                .mapToDouble(Animal::getAge)
+                .average()
+                .ifPresent(System.out::println);
     }
 
     public static void task12() {
         List<Person> persons = Util.getPersons();
-//        persons.stream() Продолжить ...
+
+        Predicate<Person> hasGenderAndAgeRange = person -> person.getGender().equals("Male")
+                && person.getDateOfBirth().isAfter(LocalDate.of(1996, 10, 23))
+                && person.getDateOfBirth().isBefore(LocalDate.of(2005, 10, 23));
+
+        persons.stream()
+                .filter(hasGenderAndAgeRange)
+                .sorted(Comparator.comparingInt(Person::getRecruitmentGroup))
+                .limit(200)
+                .forEach(System.out::println);
     }
 
+    //пенсионный возраст Женщины = 58, мужчины = 63
     public static void task13() {
         List<House> houses = Util.getHouses();
-//        houses.stream() Продолжить ...
+
+        Predicate<Person> hasSecondWaveRequirements = person -> {
+            LocalDate dateOfBirth = person.getDateOfBirth();
+            return dateOfBirth.isAfter(LocalDate.of(2005, 10, 22))
+                    || (dateOfBirth.isBefore(LocalDate.of(1965, 10, 23))
+                    && person.getGender().equals("Female"))
+                    || (dateOfBirth.isBefore(LocalDate.of(1960, 10, 23))
+                    && person.getGender().equals("Male"));
+        };
+
+        List<Person> third = new ArrayList<>(); //для сбора третьей очереди эвакуации.
+
+        List<Person> first = houses.stream()
+                .sorted(Comparator.comparing(House::getBuildingType, Comparator.reverseOrder()))
+                .flatMap(house -> {
+                    if (house.getBuildingType().equals("Hospital")) {
+                        return house.getPersonList().stream();
+                    } else {
+                        Stream<Person> secondWave = house.getPersonList().stream().filter(hasSecondWaveRequirements);
+                        Stream<Person> thirdWave = house.getPersonList().stream().filter(hasSecondWaveRequirements.negate());
+                        thirdWave.collect(Collectors.toCollection(() -> third));
+                        return secondWave;
+                    }
+                })
+                .toList();
+
+        Stream.concat(first.stream(), third.stream())
+                .limit(500)
+                .forEach(System.out::println);
     }
 
     public static void task14() {
         List<Car> cars = Util.getCars();
-//        cars.stream() Продолжить ...
+
+        Function<Car, Map<String, Car>> groupingCarsToMapOfCountryAndCars = car -> {
+            Map<String, Car> map = new HashMap<>();
+            if (car.getCarMake().equals("Jaguar") || car.getColor().equals("White")) {
+                map.put("Turkmenistan", car);
+            } else if (car.getMass() <= 1500
+                    && (car.getCarMake().equals("BMW") || car.getCarMake().equals("Lexus")
+                    || car.getCarMake().equals("Chrysler") || car.getCarMake().equals("Toyota"))) {
+                map.put("Uzbekistan", car);
+            } else if ((car.getColor().equals("Black") && car.getMass() > 4000)
+                    || car.getCarMake().equals("GMC") || car.getCarMake().equals("Dodge")) {
+                map.put("Kazakhstan", car);
+            } else if (car.getReleaseYear() < 1982 || car.getCarModel().equals("Civic") || car.getCarModel().equals("Cherokee")) {
+                map.put("Kyrgyzstan", car);
+            } else if ((!car.getColor().equals("Yellow") && !car.getColor().equals("Red")
+                    && !car.getColor().equals("Green") && !car.getColor().equals("Blue")) || car.getPrice() > 40000) {
+                map.put("Russia", car);
+            } else if (car.getVin().contains("59")) {
+                map.put("Mongolia", car);
+            }
+            return map;
+        };
+
+        double sum = cars.stream()
+                .map(groupingCarsToMapOfCountryAndCars)
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toList())))
+                .entrySet().stream()
+                .mapToDouble(entry -> {
+                    double cost = entry.getValue().stream().mapToDouble(Car::getMass).sum() * 7.14 / 1000;
+                    System.out.println(entry.getKey() + ": cost = " + cost);
+                    return cost;
+                })
+                .sum();
+
+        System.out.printf("""
+                ---------------------------------
+                Total cost: %.2f
+                ---------------------------------
+                """, sum);
     }
 
     public static void task15() {
         List<Flower> flowers = Util.getFlowers();
-//        flowers.stream() Продолжить ...
+        String neededFlowersNameStartsWith = "CDEFGJKLMNOPQRS";
+
+        Predicate<Flower> hasFlowersNameStartWith =
+                flower -> neededFlowersNameStartsWith.contains(String.valueOf(flower.getCommonName().charAt(0)));
+        Predicate<Flower> hasFlowersShadePreferredAndVaseMaterial = flower -> flower.isShadePreferred()
+                && (flower.getFlowerVaseMaterial().contains("Glass")
+                || flower.getFlowerVaseMaterial().contains("Aluminum")
+                || flower.getFlowerVaseMaterial().contains("Steel"));
+        ToDoubleFunction<Flower> calculateFlowerService =
+                flower -> flower.getPrice() + flower.getWaterConsumptionPerDay() * 5 * 365 / 1000 * 1.39;
+
+
+        double sum = flowers.stream()
+                .sorted(Comparator.comparing(
+                                Flower::getOrigin).reversed()
+                        .thenComparing(Flower::getPrice).reversed()
+                        .thenComparing(Flower::getWaterConsumptionPerDay).reversed())
+                .filter(hasFlowersNameStartWith)
+                .filter(hasFlowersShadePreferredAndVaseMaterial)
+                .mapToDouble(calculateFlowerService)
+                .sum();
+        System.out.println(sum + "$");
     }
 
     public static void task16() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+
+        Predicate<Student> hasStudentYounger = student -> student.getAge() < 18; //кстати таких нет :)
+
+        students.stream()
+                .filter(hasStudentYounger)
+                .sorted(Comparator.comparing(Student::getSurname))
+                .forEach(student -> System.out.println("Student: " + student.getSurname() + ". His age: " + student.getAge()));
     }
 
     public static void task17() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        students.stream()
+                .map(Student::getGroup)
+                .distinct()
+                .forEach(System.out::println);
     }
 
     public static void task18() {
         List<Student> students = Util.getStudents();
-        List<Examination> examinations = Util.getExaminations();
-//        students.stream() Продолжить ...
+        students.stream()
+                .collect(Collectors.groupingBy(Student::getGroup))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry-> entry.getValue().stream().mapToDouble(Student::getAge).average().orElseThrow()))
+                .entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(e -> System.out.println("В группе " + e.getKey() + " средний балл = " + e.getValue()));
     }
 
     public static void task19() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        List<Examination> examinations = Util.getExaminations();
+        String groupName = "C-2";
+
+        students.stream()
+                .filter(student -> student.getGroup().equals(groupName))
+                .filter(student -> examinations.stream()
+                        .filter(examination -> examination.getExam3() > 4)
+                        .anyMatch(ex -> ex.getStudentId() == student.getId()))
+                .forEach(System.out::println);
     }
 
     public static void task20() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        List<Examination> examinations = Util.getExaminations();
+        Map.Entry<String, Double> maxFacultyAverage = students.stream()
+                .collect(Collectors.groupingBy(Student::getFaculty, Collectors.averagingDouble(
+                        student -> examinations.stream()
+                                .filter(exam -> exam.getStudentId() == student.getId())
+                                .mapToDouble(Examination::getExam1)
+                                .findFirst()
+                                .orElse(0)
+                )))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow();
+        System.out.printf("Максимальная средняя оценка на факультете \"%s\" и она равна: %f",
+                maxFacultyAverage.getKey(), maxFacultyAverage.getValue());
     }
 
     public static void task21() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        students.stream()
+                .collect(Collectors.groupingBy(Student::getGroup))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().stream().count()))
+                .forEach((key, value) -> System.out.printf("В группе \"%s\" числится %d студентов \n", key, value));
     }
 
     public static void task22() {
         List<Student> students = Util.getStudents();
-//        students.stream() Продолжить ...
+        students.stream()
+                .collect(Collectors.groupingBy(Student::getFaculty))
+                .entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        e -> e.getValue().stream()
+                                .map(Student::getAge)
+                                .min(Comparator.comparingInt(a -> a)).orElseThrow()))
+                .forEach((key, value) ->
+                        System.out.printf("На факультете \"%s\" минимальный возраст среди студентов %d лет \n", key, value));
     }
 }
