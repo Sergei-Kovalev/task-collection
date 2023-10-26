@@ -37,7 +37,7 @@ public class Main {
 //        task11();
 //        task12();
 //        task13();
-//        task14();
+        task14();
 //        task15();
 //        task16();
 //        task17();
@@ -256,7 +256,7 @@ public class Main {
                 ---------------------------------
                 Total cost: %.2f
                 ---------------------------------
-                %n""", sum);
+                """, sum);
     }
 
     public static void task15() {
